@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,8 +9,6 @@ typedef struct studentsMarks{
     int mark1, mark2, mark3;
 }studMarks;
 
-//struct studentsMarks data[20];
-
 typedef struct listElement{
     studMarks data;
     struct listElement *next, *prev;
@@ -19,23 +16,15 @@ typedef struct listElement{
 
 void readListFromFile(listElement**, const char*);
 void addInTail(listElement**,struct studentsMarks);
-
 void printList(listElement*);
 int averageSum(studMarks);
 void sortList(struct listElement*);
-
 void removeFromHead(listElement**);
 void freeList(listElement**);
-
 void deleteBySurname(struct listElement**, char []);
-//listElement *deleteElement(listElement **head, listElement* pdel)
-//void deleteBySurname(struct listElement* , char);
-listElement *deleteElement(listElement**, listElement*);
-void freeElementMemory(listElement*);
 void writeListIntoFile(listElement* infData, const char *fileName);
 void writeListIntoFileOrderByGroupAndSurname(listElement*);
 void printListBadStudents(struct listElement*);
-
 void sortByGroupAndSurname(struct listElement*);
 
 
@@ -64,7 +53,7 @@ int main() {
         printf("5. Sort list order by group and surname\n");
         printf("6. Write list into file ordered by group and surname\n");
         printf("7. Print bad student\n");
-        printf("0. Exit\n\n > ");
+        printf("0. Exit\n\n Choose action number:> ");
 
         scanf("%d",&menu);
 
@@ -123,8 +112,6 @@ int main() {
             freeList(&infData);
         }
     }
-
-
     return 0;
 }
 
@@ -134,8 +121,6 @@ void readListFromFile(listElement** infData, const char *fileName) {
     FILE* file = fopen(fileName,"r");
     if(!file)
         return;
-
-    ///int numberX, numberY, numberZ;
     while(!feof(file)) {
         struct studentsMarks studentsMark;
 
@@ -255,52 +240,38 @@ void deleteBySurname(struct listElement** head, char temp[]) {
         while(current != NULL && strcmp(current->data.surname,temp) != 0) {
             current = current->next;
         }
-
         if(current != NULL) {
             if(current == *head) {
                 *head = (*head)->next;
                 (*head)->prev = NULL;
-
                 free(current);
-
             } else {
                 current->prev->next = current->next;
                 if(current->next != NULL)
                     current->next->prev = current->prev;
-
                 free(current);
             }
         }
     }
 }
 
-listElement *deleteElement(listElement **head, listElement * pdel) {
-    if (head != NULL) {
-        if (*head != NULL) {
-            if (pdel == *head) {    //delete first element from list
-                *head = (*head)->next;
-                (*head)->prev = NULL;
-                freeElementMemory(pdel);
-                return head;
-                //return NULL;
-            }}}
-    listElement  *tail;
-    if (pdel == tail) {      //delete first element from list
-        tail = tail->prev;
-        tail->next = NULL;
-        freeElementMemory(pdel);
-        return NULL;
-    } else {                    //delete middle element from list
-        listElement *pnext;
-        pdel->next->prev = pdel->prev;
-        pnext = pdel->prev->next = pdel->next;
-        freeElementMemory(pdel);
-        return NULL;
-        //return pnext;
+void sortByGroupAndSurname(struct listElement* head) {
+
+    for(listElement * current = head; current!=NULL;current = current->next) {
+
+        for(listElement * scurrent = current->next;scurrent!=NULL;scurrent = scurrent->next) {
+
+            if(strcmp(current->data.group, scurrent->data.group) > 0 ||
+               strcmp(current->data.group, scurrent->data.group) == 0 &&
+               strcmp(current->data.surname, scurrent->data.surname) > 0) {
+
+                studMarks buffer = current->data;
+                current->data = scurrent->data;
+                scurrent->data = buffer;
+            }
+        }
     }
 }
-
-
 
 void writeListIntoFile(listElement* infData, const char *fileName) {
 
@@ -328,10 +299,8 @@ void writeListIntoFileOrderByGroupAndSurname(listElement* infData) {
         addInTail(&bufferList, current->data);
         current = current->next;
     }
-
     //sorting order group
     sortByGroupAndSurname(bufferList);
-
     //writing in files
     current = bufferList;
     while(current != NULL) {
@@ -349,41 +318,56 @@ void writeListIntoFileOrderByGroupAndSurname(listElement* infData) {
 
             current = current->next;
         } while(current != NULL && strcmp(current->data.group,current->prev->data.group) == 0);
-
         fclose(file);
     }
-
     freeList(&bufferList);
 }
 
-void sortByGroupAndSurname(struct listElement* head) {
 
-    for(listElement * current = head; current!=NULL;current = current->next) {
+//void freeElementMemory(listElement*);
 
-        for(listElement * scurrent = current->next;scurrent!=NULL;scurrent = scurrent->next) {
-
-            if(strcmp(current->data.group, scurrent->data.group) > 0 ||
-               strcmp(current->data.group, scurrent->data.group) == 0 &&
-               strcmp(current->data.surname, scurrent->data.surname) > 0) {
-
-                studMarks buffer = current->data;
-                current->data = scurrent->data;
-                scurrent->data = buffer;
-            }
-        }
-    }
-}
+//listElement *deleteElement(listElement **head, listElement* pdel)
+//void deleteBySurname(struct listElement* , char);
+//listElement *deleteElement(listElement**, listElement*);
 
 
 
+/*
 
 void freeElementMemory(listElement * pel) {
     free(pel->data.surname);
     free(pel);
 }
+*/
 
 
-
+/*
+listElement *deleteElement(listElement **head, listElement * pdel) {
+    if (head != NULL) {
+        if (*head != NULL) {
+            if (pdel == *head) {    //delete first element from list
+                *head = (*head)->next;
+                (*head)->prev = NULL;
+                freeElementMemory(pdel);
+                return head;
+                //return NULL;
+            }}}
+    listElement  *tail;
+    if (pdel == tail) {      //delete first element from list
+        tail = tail->prev;
+        tail->next = NULL;
+        freeElementMemory(pdel);
+        return NULL;
+    } else {                    //delete middle element from list
+        listElement *pnext;
+        pdel->next->prev = pdel->prev;
+        pnext = pdel->prev->next = pdel->next;
+        freeElementMemory(pdel);
+        return NULL;
+        //return pnext;
+    }
+}
+*/
 
 
 
